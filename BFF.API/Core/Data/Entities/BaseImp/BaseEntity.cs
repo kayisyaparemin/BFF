@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BFF.Core.Data.Entities.BaseImp
 {
-    public class BaseEntity : IEntity
+    public class BaseEntity 
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column("id")]

@@ -4,7 +4,7 @@ using BFF.Core.Repository;
 
 namespace BFF.Repositories
 {
-    public interface IProductRepository : IODataRepository<Product>
+    public interface IProductRepository : IRepository<Product>
     {
     }
 }

@@ -1,13 +1,15 @@
-﻿using BFF.Models.Entities;
+﻿using BFF.API.Models.DTOs.Product;
+using BFF.Models.Entities;
 using BFF.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
+using Newtonsoft.Json;
 using System.Net;
 
 [ApiController]
-[Route("odata/[controller]")]
-public class ProductController : ODataController
+[Route("api/[controller]")]
+public class ProductController : Controller
 {
     private readonly IProductService _productService;
 
@@ -17,10 +19,9 @@ public class ProductController : ODataController
     }
 
     [HttpGet("{id}")]
-    [EnableQuery]
     public async Task<IActionResult> GetProduct(int id)
     {
-        var product =  await _productService.GetProductAsync(id);
+        var product =  await _productService.GetByIdAsync(id);
 
         if (product == null)
         {
@@ -28,37 +29,56 @@ public class ProductController : ODataController
         }
         return Ok(product);
     }
+    [HttpGet("all")]
+    public async Task<IActionResult> GetAllProducts()
+    {
+        var products = await _productService.GetAllAsync();
 
+        return Ok(products);
+    }
+    [HttpGet("list")]
+    public async Task<IActionResult> GetProducts([FromBody] List<int> ids)
+    {
+        if (ids == null || ids.Count == 0)
+        {
+            return BadRequest();
+        }
+
+        var products = await _productService.GetByIdsAsync(ids);
+
+        return Ok(products);
+    }
     [HttpGet]
     [EnableQuery]
-    public async Task<IActionResult> GetAllProducts(ODataQueryOptions<Product> options)
+    [Route("filteredProducts/odata/")]
+    public async Task<IActionResult> GetFilteredProducts(ODataQueryOptions<Product> options)
     {
-        var products =  await _productService.GetAllProductsAsync(options);
+        var products =  await _productService.GetFilteredAsync(options);
 
         return Ok(products);
     }
 
     [HttpPost]
-    public async Task<IActionResult> InsertProduct([FromBody] Product product)
+    public async Task<IActionResult> InsertProduct([FromBody] ProductInsertDto request)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
 
-        await _productService.InsertAsync(product);
+        await _productService.InsertAsync<ProductInsertDto>(request);
 
-        return Created(product);
+        return NoContent();
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateProduct([FromBody] Product product)
+    public async Task<IActionResult> UpdateProduct([FromBody] ProductUpdateDto request)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
-        await _productService.UpdateAsync(product);
+        await _productService.InsertAsync<ProductUpdateDto>(request);
 
         return StatusCode((int)HttpStatusCode.NoContent);
     }
@@ -66,7 +86,7 @@ public class ProductController : ODataController
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteProduct(int id)
     {
-        var existingProduct = await _productService.GetProductAsync(id);
+        var existingProduct = await _productService.GetByIdAsync(id);
 
         if (existingProduct == null)
         {
@@ -76,19 +96,6 @@ public class ProductController : ODataController
         await _productService.DeleteAsync(id);
         
         return StatusCode((int)HttpStatusCode.NoContent);
-    }
-
-    [HttpPost("list")]
-    public async Task<IActionResult> GetProducts([FromBody] List<int> ids)
-    {
-        if (ids == null || ids.Count == 0)
-        {
-            return BadRequest();
-        }
-
-        var products = await _productService.GetProductsAsync(ids);
-
-        return Ok(products);
-    }
+    }  
 }
 

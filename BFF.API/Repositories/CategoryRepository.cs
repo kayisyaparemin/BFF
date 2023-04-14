@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BFF.Repositories
 {
-    public class CategoryRepository : ODataRepository<Category>,ICategoryRepository
+    public class CategoryRepository : Repository<Category>,ICategoryRepository
     {
         private readonly DataContext _dataContext;
         public CategoryRepository(DataContext dataContext) : base(dataContext)

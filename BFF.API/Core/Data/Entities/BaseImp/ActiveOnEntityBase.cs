@@ -2,7 +2,7 @@
 
 namespace BFF.Core.Data.Entities.BaseImp
 {
-    public class ActiveOnEntityBase : DeletedOnEntityBase
+    public class ActiveOnEntityBase : DeletedOnEntityBase,IEntity
     {
         [Column("isactive")]
         public virtual bool IsActive { get; set; }

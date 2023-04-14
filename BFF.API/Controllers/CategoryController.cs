@@ -1,4 +1,5 @@
-﻿using BFF.Models.Entities;
+﻿using BFF.API.Models.DTOs.Category;
+using BFF.Models.Entities;
 using BFF.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
@@ -6,8 +7,8 @@ using Microsoft.AspNetCore.OData.Routing.Controllers;
 using System.Net;
 
 [ApiController]
-[Route("odata/[controller]")]
-public class CategoryController : ODataController
+[Route("api/[controller]")]
+public class CategoryController : Controller
 {
     private readonly ICategoryService _categoryService;
 
@@ -17,10 +18,9 @@ public class CategoryController : ODataController
     }
 
     [HttpGet("{id}")]
-    [EnableQuery]
     public async Task<IActionResult> GetCategory(int id)
     {
-        var product = await _categoryService.GetCategoryAsync(id);
+        var product = await _categoryService.GetByIdAsync(id);
 
         if (product == null)
         {
@@ -28,37 +28,57 @@ public class CategoryController : ODataController
         }
         return Ok(product);
     }
+    [HttpPost("list")]
+    public async Task<IActionResult> GetCategories([FromBody] List<int> ids)
+    {
+        if (ids == null || ids.Count == 0)
+        {
+            return BadRequest();
+        }
+
+        var categories = await _categoryService.GetByIdsAsync(ids);
+
+        return Ok(categories);
+    }
+    [HttpGet("all")]
+    public async Task<IActionResult> GetAllCategories()
+    {
+        var products = await _categoryService.GetAllAsync();
+
+        return Ok(products);
+    }
 
     [HttpGet]
     [EnableQuery]
-    public async Task<IActionResult> GetAllCategories(ODataQueryOptions<Category> options)
+    [Route("filteredCategories/odata/")]
+    public async Task<IActionResult> GetFilteredCategories(ODataQueryOptions<Category> options)
     {
-        var categories = await _categoryService.GetAllCategoriesAsync(options);
+        var categories = await _categoryService.GetFilteredAsync(options);
 
        return Ok(categories);
     }
 
     [HttpPost]
-    public async Task<IActionResult> InsertCategory([FromBody] Category category)
+    public async Task<IActionResult> InsertCategory([FromBody] CategoryInsertDto request)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
 
-        await _categoryService.InsertAsync(category);
+        await _categoryService.InsertAsync<CategoryInsertDto>(request);
 
-        return Created(category);
+        return NoContent();
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateCategory([FromBody] Category category)
+    public async Task<IActionResult> UpdateCategory([FromBody] CategoryUpdateDto request)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
-        await _categoryService.UpdateAsync(category);
+        await _categoryService.UpdateAsync<CategoryUpdateDto>(request);
 
         return StatusCode((int)HttpStatusCode.NoContent);
     }
@@ -66,7 +86,7 @@ public class CategoryController : ODataController
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteCategory(int id)
     {
-        var existingProduct = await _categoryService.GetCategoryAsync(id);
+        var existingProduct = await _categoryService.GetByIdAsync(id);
 
         if (existingProduct == null)
         {
@@ -78,17 +98,6 @@ public class CategoryController : ODataController
         return StatusCode((int)HttpStatusCode.NoContent);
     }
 
-    [HttpPost("list")]
-    public async Task<IActionResult> GetCategories([FromBody] List<int> ids)
-    {
-        if (ids == null || ids.Count == 0)
-        {
-            return BadRequest();
-        }
-
-        var categories = await _categoryService.GetCategoriesAsync(ids);
-
-        return Ok(categories);
-    }
+    
 }
 

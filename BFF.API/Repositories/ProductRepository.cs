@@ -4,7 +4,7 @@ using BFF.Models.Entities;
 
 namespace BFF.Repositories
 {
-    public class ProductRepository : ODataRepository<Product>,IProductRepository
+    public class ProductRepository : Repository<Product>,IProductRepository
     {
         private readonly DataContext _dataContext;
         public ProductRepository(DataContext dataContext) : base(dataContext)

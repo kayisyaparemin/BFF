@@ -1,4 +1,7 @@
-﻿using BFF.Core.Data.Entities.BaseImp;
+﻿using BFF.API.Core.Service;
+using BFF.Core.Data;
+using BFF.Core.Data.Entities.BaseImp;
+using Microsoft.AspNetCore.OData.Query;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BFF.Models.Entities

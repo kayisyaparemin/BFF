@@ -3,7 +3,7 @@ using BFF.Models.Entities;
 
 namespace BFF.Repositories
 {
-    public interface ICategoryRepository : IODataRepository<Category>
+    public interface ICategoryRepository : IRepository<Category>
     {
       
     }
